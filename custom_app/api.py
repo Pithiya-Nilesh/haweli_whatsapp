@@ -50,8 +50,8 @@ def wati_check_number():
     for number in details:
         
         # print("\n\n details", number["mobile_no"])
-        # url = f'https://live-server-100115.wati.io/api/v1/sendTemplateMessage?whatsappNumber=91{number["mobile_no"]}'
-        url = f'https://live-server-100115.wati.io/api/v1/sendTemplateMessage?whatsappNumber=917990915950'
+        url = f'https://live-server-100115.wati.io/api/v1/sendTemplateMessage?whatsappNumber=91{number["mobile_no"]}'
+        # url = f'https://live-server-100115.wati.io/api/v1/sendTemplateMessage?whatsappNumber=917990915950'
 
         print("\n\n url", url)
         response = requests.post(url, json=payload, headers=headers)
