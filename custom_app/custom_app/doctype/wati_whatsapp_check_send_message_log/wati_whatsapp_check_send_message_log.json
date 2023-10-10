@@ -9,6 +9,7 @@
  "field_order": [
   "mobile_no",
   "firstname",
+  "send",
   "lastname",
   "data"
  ],
@@ -16,11 +17,15 @@
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "mobile_no"
   },
   {
    "fieldname": "firstname",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Firstname"
   },
   {
@@ -33,11 +38,19 @@
    "fieldtype": "Code",
    "label": "data",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "send",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Send"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-09 17:35:27.297807",
+ "modified": "2023-10-10 15:45:07.153862",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "wati whatsapp check send message log",

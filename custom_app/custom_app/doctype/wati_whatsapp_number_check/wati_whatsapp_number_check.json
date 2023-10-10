@@ -44,12 +44,13 @@
    "default": "0",
    "fieldname": "send",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": "Send"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-10 15:17:02.681933",
+ "modified": "2023-10-10 15:32:46.653513",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Wati Whatsapp Number Check",

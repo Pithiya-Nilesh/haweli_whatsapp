@@ -40,8 +40,8 @@ def wati_check_number():
     }
 
     payload = {
-                "broadcast_name": "bnotification",
-                "template_name": "bnotification",
+                "broadcast_name": "shilanyas_invitation_new",
+                "template_name": "shilanyas_invitation_new",
                 "parameters": []
             }
 
@@ -65,13 +65,24 @@ def wati_check_number():
             send.save()
             frappe.db.commit()
 
-        log = frappe.new_doc("wati whatsapp check send message log")
-        log.firstname = number["first_name"]
-        log.lastname = number["last_name"]
-        log.mobile_no = number["mobile_no"]
-        log.data = json.dumps(data, indent=4)
-        log.insert()
-        frappe.db.commit()
+            log = frappe.new_doc("wati whatsapp check send message log")
+            log.firstname = number["first_name"]
+            log.lastname = number["last_name"]
+            log.mobile_no = number["mobile_no"]
+            log.send = 1
+            log.data = json.dumps(data, indent=4)
+            log.insert()
+            frappe.db.commit()
+
+        else:
+            log = frappe.new_doc("wati whatsapp check send message log")
+            log.firstname = number["first_name"]
+            log.lastname = number["last_name"]
+            log.mobile_no = number["mobile_no"]
+            log.send = 0
+            log.data = json.dumps(data, indent=4)
+            log.insert()
+            frappe.db.commit()
 
         # if "validWhatsAppNumber" in data and data["validWhatsAppNumber"] == True:
         #     doc = frappe.get_doc("Wati Whatsapp Number Check", number["name"])
