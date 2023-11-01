@@ -8,7 +8,12 @@
  "engine": "InnoDB",
  "field_order": [
   "mobile_no",
-  "is_valid_whatsapp_no"
+  "firstname",
+  "lastname",
+  "city",
+  "is_valid_whatsapp_no",
+  "sent",
+  "data"
  ],
  "fields": [
   {
@@ -26,11 +31,43 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Is Valid Whatsapp No"
+  },
+  {
+   "fieldname": "firstname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Firstname"
+  },
+  {
+   "fieldname": "lastname",
+   "fieldtype": "Data",
+   "label": "Lastname"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "City"
+  },
+  {
+   "default": "0",
+   "fieldname": "sent",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Sent"
+  },
+  {
+   "fieldname": "data",
+   "fieldtype": "Code",
+   "label": "Response Data"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-04 10:30:25.383920",
+ "modified": "2023-11-01 15:07:22.017818",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Whatsapp Number Check",
