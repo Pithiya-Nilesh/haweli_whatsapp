@@ -4,9 +4,10 @@ import json
 
 @frappe.whitelist()
 def check_number():
-    doc = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", 'mobile_no'])
+    # doc = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", 'mobile_no'])
+    data = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0}, fields=["name", "mobile_no"], limit=5000)
 
-    for i in doc:
+    for i in data:
         url = "https://api.ultramsg.com/instance63753/contacts/check"
 
         querystring = {
@@ -20,16 +21,25 @@ def check_number():
         response = requests.request("GET", url, headers=headers, params=querystring)
 
         data = json.loads(response.text)
-        # print("\n\n data", data)
-        if data['status'] == 'valid':
+
+        if "status" in data and data["status"] == "valid":
             doc = frappe.get_doc("Whatsapp Number Check", i.name)
             doc.is_valid_whatsapp_no = 1
-            doc.save()
+            doc.data = json.dumps(data, indent=4)
+            doc.sent = 1
+            doc.save(ignore_permissions=True)
             frappe.db.commit()
+
         else:
-            pass
+            doc = frappe.get_doc("Whatsapp Number Check", i.name)
+            doc.data = json.dumps(data, indent=4)
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+    
 
 
+# ############################ below code is for wati ####################################
 
 @frappe.whitelist()
 def wati_check_number():
@@ -45,7 +55,7 @@ def wati_check_number():
                 "parameters": []
             }
 
-    details = frappe.db.get_list("Wati Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", "mobile_no", "first_name", "last_name"])
+    details = frappe.db.get_list("Wati Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", "mobile_no", "first_name", "last_name"], limit=100)
 
     for number in details:
         
@@ -118,6 +128,12 @@ def delivered_template_message_webhook():
         set_yes.is_valid_whatsapp_no = 1
         set_yes.save(ignore_permissions=True)
         frappe.db.commit()
+
+    wmdw = frappe.new_doc("Wati Message Delivered Webhook")
+    wmdw.whatsapp_id = response["whatsappMessageId"]
+    wmdw.data = frappe.as_json(response, 4)
+    wmdw.insert(ignore_permissions=True)
+    frappe.db.commit()
 
 
 # @frappe.whitelist(allow_guest=True)
