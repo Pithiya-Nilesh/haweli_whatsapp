@@ -36,10 +36,105 @@ def check_number():
             doc.save(ignore_permissions=True)
             frappe.db.commit()
 
+
+@frappe.whitelist()
+def send_whatsapp_message(data, details):
+    user_details = json.loads(data)
+    c_details = json.loads(details)
+
+    # check whatsapp config
     
+    if c_details["type"] == "Video":
+        send_video(user_details, c_details)
+    elif c_details["type"] == "Document":
+        send_document(user_details, c_details)
+    elif c_details["type"] == "Image":
+        send_image(user_details, c_details)
+    elif c_details["type"] == "Message":
+        send_message(user_details, c_details)
+
+# @frappe.whitelist()
+def send_video(data, video_details):
+    user_details = json.loads(data)
+    video_details = json.loads(video_details)
+
+    from frappe.utils import get_url
+    video_link = get_url + video_details['video_link']
+
+    url = "https://api.ultramsg.com/instance63753/messages/video"
+    for data in user_details:
+        # https://file-example.s3-accelerate.amazonaws.com/video/test.mp4
+        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&video={video_link}&caption={video_details['caption']}"
+        
+        payload = payload.encode('utf8').decode('iso-8859-1')
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+
+        print(response.text)
 
 
-# ############################ below code is for wati ####################################
+def send_document(data, document_details):
+    user_details = json.loads(data)
+    document_details = json.loads(document_details)
+
+    url = "https://api.ultramsg.com/instance63753/messages/document"
+    
+    from frappe.utils import get_url
+    document_link = get_url + document_details['document_link']
+
+    from urllib.parse import urlparse
+    parsed_url = urlparse(document_link)
+
+    # Get the filename from the path component of the URL
+    filename = parsed_url.path.split('/')[-1]
+
+    for data in user_details:
+        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={document_details['caption']}"
+        payload = payload.encode('utf8').decode('iso-8859-1')
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+
+        print(response.text)
+
+def send_image(data, image_details):
+    user_details = json.loads(data)
+    message_details = json.loads(message_details)
+
+    from frappe.utils import get_url
+    image_link = get_url + image_details['image_link']
+
+    url = "https://api.ultramsg.com/instance63753/messages/image"
+    for data in user_details:
+        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&image={image_link}&caption={image_details['caption']}"
+        payload = payload.encode('utf8').decode('iso-8859-1')
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+        print(response.text)
+
+
+# @frappe.whitelist()
+def send_message(data, message_details):
+    user_details = json.loads(data)
+    message_details = json.loads(message_details)
+    
+    url = "https://api.ultramsg.com/instance63753/messages/chat"
+    for data in user_details:
+        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&body={message_details['message']}"
+        payload = payload.encode('utf8').decode('iso-8859-1')
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+
+        print(response.text)
+
+
+
+############################# above code is for ultra messages ####################################
+
+############################# below code is for wati ##############################################
 
 @frappe.whitelist()
 def wati_check_number():
@@ -140,3 +235,17 @@ def delivered_template_message_webhook():
 # def replied_on_template_message():
 #     response = frappe.form_dict
 #     return response
+
+
+
+# @frappe.whitelist()
+# def a():
+#     # print("\n\n frappe.get_meta", frappe.get_meta('User'))
+#     # return frappe.get_meta('User')
+
+#     data = frappe.db.get_list("DocType")
+#     for i in data:
+#         # return i
+#         # return frappe.get_meta(i["name"])
+#         # print("\n\n frappe.get_meta", frappe.get_meta(i["name"]))
+#         print("\n\n frappe.get_meta", frappe.get_meta(i["name"]).fields)

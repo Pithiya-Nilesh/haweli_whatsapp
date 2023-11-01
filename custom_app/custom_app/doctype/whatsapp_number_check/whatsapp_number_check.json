@@ -55,9 +55,8 @@
    "default": "0",
    "fieldname": "sent",
    "fieldtype": "Check",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Sent"
+   "label": "Sent",
+   "read_only": 1
   },
   {
    "fieldname": "data",
@@ -67,7 +66,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-01 15:07:22.017818",
+ "modified": "2023-11-01 16:44:35.471909",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Whatsapp Number Check",
