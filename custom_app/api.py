@@ -37,34 +37,96 @@ def check_number():
             frappe.db.commit()
 
 
+def get_ultra_settings():
+    return frappe.get_cached_doc("Ultramsg Whatsapp Settings")
+
+
+@frappe.whitelist(allow_guest=True)
+def check_selected_no(data):
+
+    data = json.loads(data)
+    # print("\n\n data ", data)
+    # print("\n\n type data ", type(data))
+    
+    ultra_settings = get_ultra_settings()
+    if ultra_settings.enable == 0:
+        return frappe.msgprint("Please Enable Whatsapp API in Ultramsg Whatsapp Settings to Check Numbers")
+    
+    url = f"https://api.ultramsg.com/{ultra_settings.instance_id}/contacts/check"
+    token = frappe.utils.password.get_decrypted_password("Ultramsg Whatsapp Settings", "Ultramsg Whatsapp Settings", fieldname="token")
+    
+    for i in data["numbers"]:
+
+        querystring = {
+            "token": token,
+            "chatId": i,
+            "nocache": ""
+        }
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+       
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        data = json.loads(response.text)
+
+        if "status" in data and data["status"] == "valid":
+            doc = frappe.get_doc("Whatsapp Number Check", i)
+            doc.is_valid_whatsapp_no = 1
+            doc.data = json.dumps(data, indent=4)
+            doc.sent = 1
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        else:
+            doc = frappe.get_doc("Whatsapp Number Check", i)
+            doc.data = json.dumps(data, indent=4)
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+
 @frappe.whitelist()
 def send_whatsapp_message(data, details):
     user_details = json.loads(data)
     c_details = json.loads(details)
 
     # check whatsapp config
+    ultra_settings = get_ultra_settings()
+    if ultra_settings.enable == 0:
+        return frappe.msgprint("Please Enable Whatsapp API in Ultramsg Whatsapp Settings to Send Messages")
     
     if c_details["type"] == "Video":
         send_video(user_details, c_details)
+
     elif c_details["type"] == "Document":
         send_document(user_details, c_details)
+
     elif c_details["type"] == "Image":
         send_image(user_details, c_details)
+
     elif c_details["type"] == "Message":
         send_message(user_details, c_details)
 
 # @frappe.whitelist()
 def send_video(data, video_details):
-    user_details = json.loads(data)
-    video_details = json.loads(video_details)
+    user_details = data
 
-    from frappe.utils import get_url
-    video_link = get_url + video_details['video_link']
+    video_link = video_details['video_link']
+    if video_link.startswith("/files"):
+        from frappe.utils import get_url
+        video_link = get_url() + video_link
+    else:
+       video_link = video_link
+    
+    caption = ""
+    if "caption" in video_details:
+        caption = video_details["caption"]
 
-    url = "https://api.ultramsg.com/instance63753/messages/video"
+    ultra_settings = get_ultra_settings()
+    token = frappe.utils.password.get_decrypted_password("Ultramsg Whatsapp Settings", "Ultramsg Whatsapp Settings", fieldname="token")
+
+    url = f"https://api.ultramsg.com/{ultra_settings.instance_id}/messages/video"
     for data in user_details:
         # https://file-example.s3-accelerate.amazonaws.com/video/test.mp4
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&video={video_link}&caption={video_details['caption']}"
+        payload = f"token={token}&to={data['mobile_no']}&video={video_link}&caption={caption}"
         
         payload = payload.encode('utf8').decode('iso-8859-1')
         headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -73,64 +135,124 @@ def send_video(data, video_details):
 
         print(response.text)
 
+        res = json.loads(response.text)
+        if "sent" in res and res["sent"]:
+            status = "Success"
+        else:
+            status = "Failed"
+        set_whatsapp_log(response.text, status, data['mobile_no'], "Video", link=video_link, caption=caption)
+
 
 def send_document(data, document_details):
-    user_details = json.loads(data)
-    document_details = json.loads(document_details)
+    user_details = data
 
-    url = "https://api.ultramsg.com/instance63753/messages/document"
+    document_link = document_details['document_link']
+    if document_link.startswith("/files"):
+        from frappe.utils import get_url
+        document_link = get_url() + document_link
+    else:
+       document_link = document_link
     
-    from frappe.utils import get_url
-    document_link = get_url + document_details['document_link']
-
+    caption = ""
+    if "caption" in document_details:
+        caption = document_details["caption"]
+    
     from urllib.parse import urlparse
     parsed_url = urlparse(document_link)
+
+    ultra_settings = get_ultra_settings()
+    token = frappe.utils.password.get_decrypted_password("Ultramsg Whatsapp Settings", "Ultramsg Whatsapp Settings", fieldname="token")
+
+    url = f"https://api.ultramsg.com/{ultra_settings.instance_id}/messages/document"
 
     # Get the filename from the path component of the URL
     filename = parsed_url.path.split('/')[-1]
 
     for data in user_details:
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={document_details['caption']}"
+        payload = f"token={token}&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
         payload = payload.encode('utf8').decode('iso-8859-1')
         headers = {'content-type': 'application/x-www-form-urlencoded'}
 
         response = requests.request("POST", url, data=payload, headers=headers)
 
         print(response.text)
+        res = json.loads(response.text)
+        if "sent" in res and res["sent"]:
+            status = "Success"
+        else:
+            status = "Failed"
+        set_whatsapp_log(response.text, status, data['mobile_no'], "Document", link=document_link, caption=caption)
+
 
 def send_image(data, image_details):
-    user_details = json.loads(data)
-    message_details = json.loads(message_details)
+    user_details = data
 
-    from frappe.utils import get_url
-    image_link = get_url + image_details['image_link']
+    image_link = image_details['image_link']
+    if image_link.startswith("/files"):
+        from frappe.utils import get_url
+        image_link = get_url() + image_link
+    else:
+       image_link = image_link
+    
+    caption = ""
+    if "caption" in image_details:
+        caption = image_details["caption"]
 
-    url = "https://api.ultramsg.com/instance63753/messages/image"
+    ultra_settings = get_ultra_settings()
+    token = frappe.utils.password.get_decrypted_password("Ultramsg Whatsapp Settings", "Ultramsg Whatsapp Settings", fieldname="token")
+
+
+    url = f"https://api.ultramsg.com/{ultra_settings.instance_id}/messages/image"
     for data in user_details:
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&image={image_link}&caption={image_details['caption']}"
+        payload = f"token={token}&to={data['mobile_no']}&image={image_link}&caption={caption}"
         payload = payload.encode('utf8').decode('iso-8859-1')
         headers = {'content-type': 'application/x-www-form-urlencoded'}
 
         response = requests.request("POST", url, data=payload, headers=headers)
         print(response.text)
+        res = json.loads(response.text)
+        if "sent" in res and res["sent"]:
+            status = "Success"
+        else:
+            status = "Failed"
+        set_whatsapp_log(response.text, status, data['mobile_no'], "Image", link=image_link, caption=caption)
 
 
 # @frappe.whitelist()
 def send_message(data, message_details):
-    user_details = json.loads(data)
-    message_details = json.loads(message_details)
+    user_details = data
+
+    ultra_settings = get_ultra_settings()
     
-    url = "https://api.ultramsg.com/instance63753/messages/chat"
+    url = f"https://api.ultramsg.com/{ultra_settings.instance_id}/messages/chat"
+    token = frappe.utils.password.get_decrypted_password("Ultramsg Whatsapp Settings", "Ultramsg Whatsapp Settings", fieldname="token")
+
     for data in user_details:
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&body={message_details['message']}"
+        payload = f"token={token}&to={data['mobile_no']}&body={message_details['message']}"
         payload = payload.encode('utf8').decode('iso-8859-1')
         headers = {'content-type': 'application/x-www-form-urlencoded'}
 
         response = requests.request("POST", url, data=payload, headers=headers)
-
         print(response.text)
+        res = json.loads(response.text)
+        if "sent" in res and res["sent"]:
+            status = "Success"
+        else:
+            status = "Failed"
+        set_whatsapp_log(response.text, status, data['mobile_no'], "Message", message=message_details['message'])
 
 
+def set_whatsapp_log(response_data, status, number, c_type, link="", caption="", message=""):
+    data = json.loads(response_data)
+    log = frappe.new_doc("Whatsapp Message Log")
+    log.data = json.dumps(data, indent=4)
+    log.status = status
+    log.number = number
+    log.type = c_type
+    log.link = link
+    log.caption = caption
+    log.message = message
+    log.insert()
 
 ############################# above code is for ultra messages ####################################
 

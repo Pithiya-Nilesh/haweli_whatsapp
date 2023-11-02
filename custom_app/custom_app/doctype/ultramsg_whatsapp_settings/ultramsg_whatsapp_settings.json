@@ -21,18 +21,22 @@
   {
    "fieldname": "instance_id",
    "fieldtype": "Data",
-   "label": "Instance ID"
+   "in_list_view": 1,
+   "label": "Instance ID",
+   "reqd": 1
   },
   {
    "fieldname": "token",
    "fieldtype": "Password",
-   "label": "Token"
+   "in_list_view": 1,
+   "label": "Token",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-11-01 19:21:55.325453",
+ "modified": "2023-11-02 11:49:11.391333",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Ultramsg Whatsapp Settings",

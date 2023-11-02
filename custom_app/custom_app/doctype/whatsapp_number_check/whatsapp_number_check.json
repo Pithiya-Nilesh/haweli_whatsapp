@@ -1,6 +1,8 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
+ "autoname": "field:mobile_no",
  "creation": "2023-10-03 15:14:00.916940",
  "default_view": "List",
  "doctype": "DocType",
@@ -10,9 +12,11 @@
   "mobile_no",
   "firstname",
   "lastname",
+  "column_break_jrhho",
   "city",
   "is_valid_whatsapp_no",
   "sent",
+  "section_break_5apsb",
   "data"
  ],
  "fields": [
@@ -22,7 +26,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Mobile No"
+   "label": "Mobile No",
+   "unique": 1
   },
   {
    "default": "0",
@@ -30,7 +35,8 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Is Valid Whatsapp No"
+   "label": "Is Valid Whatsapp No",
+   "read_only": 1
   },
   {
    "fieldname": "firstname",
@@ -61,15 +67,30 @@
   {
    "fieldname": "data",
    "fieldtype": "Code",
-   "label": "Response Data"
+   "label": "Response Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jrhho",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_5apsb",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2023-11-01 16:44:35.471909",
+ "links": [
+  {
+   "link_doctype": "Whatsapp Message Log",
+   "link_fieldname": "number"
+  }
+ ],
+ "modified": "2023-11-02 17:52:05.738675",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Whatsapp Number Check",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
