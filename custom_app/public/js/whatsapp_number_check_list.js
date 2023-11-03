@@ -62,7 +62,7 @@ function make_popup(listview){
             {
                 label: 'Caption',
                 fieldname: 'caption',
-                fieldtype: 'Data',
+                fieldtype: 'Small Text',
                 depends_on: 'eval: doc.type == "Video" ||  doc.type == "Document" ||  doc.type == "Image"',
                 description: "Max length : 1024 char."
             },
