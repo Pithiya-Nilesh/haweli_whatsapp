@@ -5,7 +5,7 @@ import json
 @frappe.whitelist()
 def check_number():
     # doc = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", 'mobile_no'])
-    data = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0}, fields=["name", "mobile_no"], limit=5000)
+    data = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0}, fields=["name", "mobile_no"], limit=40000)
 
     for i in data:
         url = "https://api.ultramsg.com/instance63753/contacts/check"
@@ -35,6 +35,42 @@ def check_number():
             doc.data = json.dumps(data, indent=4)
             doc.save(ignore_permissions=True)
             frappe.db.commit()
+
+
+@frappe.whitelist()
+def send_all_number_pdf():
+
+    filename = "પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
+    document_link = "https://pushtisanskar.frappe.cloud/files/પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
+    caption = "પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. *સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ-જુનાગઢ.*"
+
+
+    url = "https://api.ultramsg.com/instance63753/messages/document"
+    user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
+    # return user_details
+    for data in user_details:
+        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
+        payload = payload.encode('utf8').decode('iso-8859-1')
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("POST", url, data=payload, headers=headers)
+
+        print(response.text)
+        res = json.loads(response.text)
+        if "sent" in res and res["sent"]:
+            status = "Success"
+        else:
+            status = "Failed"
+        set_whatsapp_log(response.text, status, data['mobile_no'], "Document", link=document_link, caption=caption)
+
+
+
+
+
+
+
+
+
 
 
 def get_ultra_settings():
@@ -253,6 +289,7 @@ def set_whatsapp_log(response_data, status, number, c_type, link="", caption="",
     log.caption = caption
     log.message = message
     log.insert()
+    frappe.db.commit()
 
 ############################# above code is for ultra messages ####################################
 
