@@ -35,8 +35,7 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Is Valid Whatsapp No",
-   "read_only": 1
+   "label": "Is Valid Whatsapp No"
   },
   {
    "fieldname": "firstname",
@@ -86,7 +85,7 @@
    "link_fieldname": "number"
   }
  ],
- "modified": "2023-11-02 17:52:05.738675",
+ "modified": "2023-11-20 13:31:17.530750",
  "modified_by": "Administrator",
  "module": "Custom App",
  "name": "Whatsapp Number Check",

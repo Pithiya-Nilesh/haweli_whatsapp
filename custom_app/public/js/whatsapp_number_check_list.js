@@ -30,7 +30,7 @@ function make_popup(listview){
             {
                 label: 'Message',
                 fieldname: 'message',
-                fieldtype: 'Data',
+                fieldtype: 'Small Text',
                 depends_on: 'eval: doc.type == "Message"',
                 mandatory_depends_on: 'eval: doc.type == "Message"',
                 description: "Max length : 4096 characters."
