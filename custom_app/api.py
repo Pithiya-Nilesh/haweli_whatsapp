@@ -48,13 +48,22 @@ def send_all_number_pdf():
     url = "https://api.ultramsg.com/instance67403/messages/document"
     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
     # return user_details
+
+    # exist_l = []
+    # new_list = []
+
     for data in user_details:
 
         l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Document"}, fieldname=["name"])
         if l:
             print("pass")
+            # exist_l.append(data['mobile_no'])
 
         else:
+            # new_list.append(data['mobile_no'])
+
+    # return {"data": exist_l, "new": new_list}
+
             payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
             payload = payload.encode('utf8').decode('iso-8859-1')
             headers = {'content-type': 'application/x-www-form-urlencoded'}
