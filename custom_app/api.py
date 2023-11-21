@@ -49,19 +49,25 @@ def send_all_number_pdf():
     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
     # return user_details
     for data in user_details:
-        payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
-        payload = payload.encode('utf8').decode('iso-8859-1')
-        headers = {'content-type': 'application/x-www-form-urlencoded'}
 
-        response = requests.request("POST", url, data=payload, headers=headers)
+        l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Document"}, filename=["name"])
+        if l:
+            print("pass")
 
-        print(response.text)
-        res = json.loads(response.text)
-        if "sent" in res and res["sent"]:
-            status = "Success"
         else:
-            status = "Failed"
-        set_whatsapp_log(response.text, status, data['mobile_no'], "Document", link=document_link, caption=caption)
+            payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
+            payload = payload.encode('utf8').decode('iso-8859-1')
+            headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+            response = requests.request("POST", url, data=payload, headers=headers)
+
+            print(response.text)
+            res = json.loads(response.text)
+            if "sent" in res and res["sent"]:
+                status = "Success"
+            else:
+                status = "Failed"
+            set_whatsapp_log(response.text, status, data['mobile_no'], "Document", link=document_link, caption=caption)
 
 @frappe.whitelist()
 def send_all_number_video():
