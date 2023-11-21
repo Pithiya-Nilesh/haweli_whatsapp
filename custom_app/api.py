@@ -5,13 +5,13 @@ import json
 @frappe.whitelist()
 def check_number():
     # doc = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", 'mobile_no'])
-    data = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0}, fields=["name", "mobile_no"], limit=40000)
+    data = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0, "data": ""}, fields=["name", "mobile_no"], limit=40000)
 
     for i in data:
-        url = "https://api.ultramsg.com/instance63753/contacts/check"
+        url = "https://api.ultramsg.com/instance67403/contacts/check"
 
         querystring = {
-            "token": "rs85zam9idaor3c7",
+            "token": "0srgh10epscrt41b",
             "chatId": i.mobile_no,
             "nocache": ""
         }
@@ -34,22 +34,22 @@ def check_number():
             doc = frappe.get_doc("Whatsapp Number Check", i.name)
             doc.data = json.dumps(data, indent=4)
             doc.save(ignore_permissions=True)
+            doc.sent = 1
             frappe.db.commit()
 
 
 @frappe.whitelist()
 def send_all_number_pdf():
-
     filename = "પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
     document_link = "https://pushtisanskar.frappe.cloud/files/પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
-    caption = "પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. *સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ-જુનાગઢ.*"
+    caption = "પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ-જુનાગઢ.*"
 
 
-    url = "https://api.ultramsg.com/instance63753/messages/document"
+    url = "https://api.ultramsg.com/instance67403/messages/document"
     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
     # return user_details
     for data in user_details:
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
+        payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
         payload = payload.encode('utf8').decode('iso-8859-1')
         headers = {'content-type': 'application/x-www-form-urlencoded'}
 
@@ -65,30 +65,30 @@ def send_all_number_pdf():
 
 @frappe.whitelist()
 def send_all_number_video():
+    pass
+    # video_link = "https://pushtisanskar.frappe.cloud/files/Pushtisanskardham Invitation Video.mp4"
+    # caption = "પુષ્ટિસંસ્કાર સ્કૂલના બાળકો દ્વારા પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ  સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ જુનાગઢ.* *Youtube :* https://youtu.be/Wada0NU6RPk"
 
-    video_link = "https://pushtisanskar.frappe.cloud/files/Pushtisanskardham Invitation Video.mp4"
-    caption = "પુષ્ટિસંસ્કાર સ્કૂલના બાળકો દ્વારા પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. *સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ  સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ જુનાગઢ.* *Youtube :* https://youtu.be/Wada0NU6RPk"
 
-
-    url = "https://api.ultramsg.com/instance63753/messages/video"
-    user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
-    # return user_details
-    for data in user_details:
-        payload = f"token=rs85zam9idaor3c7&to={data['mobile_no']}&video={video_link}&caption={caption}"
+    # url = "https://api.ultramsg.com/instance67403/messages/video"
+    # user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
+    # # return user_details
+    # for data in user_details:
+    #     payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&video={video_link}&caption={caption}"
         
-        payload = payload.encode('utf8').decode('iso-8859-1')
-        headers = {'content-type': 'application/x-www-form-urlencoded'}
+    #     payload = payload.encode('utf8').decode('iso-8859-1')
+    #     headers = {'content-type': 'application/x-www-form-urlencoded'}
 
-        response = requests.request("POST", url, data=payload, headers=headers)
+    #     response = requests.request("POST", url, data=payload, headers=headers)
 
-        print(response.text)
+    #     print(response.text)
 
-        res = json.loads(response.text)
-        if "sent" in res and res["sent"]:
-            status = "Success"
-        else:
-            status = "Failed"
-        set_whatsapp_log(response.text, status, data['mobile_no'], "Video", link=video_link, caption=caption)
+    #     res = json.loads(response.text)
+    #     if "sent" in res and res["sent"]:
+    #         status = "Success"
+    #     else:
+    #         status = "Failed"
+    #     set_whatsapp_log(response.text, status, data['mobile_no'], "Video", link=video_link, caption=caption)
 
 
 
@@ -436,3 +436,41 @@ def delivered_template_message_webhook():
 #         # return frappe.get_meta(i["name"])
 #         # print("\n\n frappe.get_meta", frappe.get_meta(i["name"]))
 #         print("\n\n frappe.get_meta", frappe.get_meta(i["name"]).fields)
+
+
+@frappe.whitelist()
+def check_number_second():
+    # doc = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "send": 0}, fields=["name", 'mobile_no'])
+    data1 = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 0, "sent": 0, "data": ""}, fields=["name", "mobile_no"], limit=40000)
+    
+    data = list(reversed(data1))
+
+    for i in data:
+        url = "https://api.ultramsg.com/instance67403/contacts/check"
+
+        querystring = {
+            "token": "0srgh10epscrt41b",
+            "chatId": i.mobile_no,
+            "nocache": ""
+        }
+
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        data = json.loads(response.text)
+
+        if "status" in data and data["status"] == "valid":
+            doc = frappe.get_doc("Whatsapp Number Check", i.name)
+            doc.is_valid_whatsapp_no = 1
+            doc.data = json.dumps(data, indent=4)
+            doc.sent = 1
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        else:
+            doc = frappe.get_doc("Whatsapp Number Check", i.name)
+            doc.data = json.dumps(data, indent=4)
+            doc.save(ignore_permissions=True)
+            doc.sent = 1
+            frappe.db.commit()
