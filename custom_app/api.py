@@ -50,7 +50,7 @@ def send_all_number_pdf():
     # return user_details
     for data in user_details:
 
-        l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Document"}, filename=["name"])
+        l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Document"}, fieldname=["name"])
         if l:
             print("pass")
 
