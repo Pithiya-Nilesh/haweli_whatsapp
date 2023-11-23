@@ -1,3 +1,4 @@
+from time import sleep
 import frappe
 import requests
 import json
@@ -40,17 +41,17 @@ def check_number():
 
 @frappe.whitelist()
 def send_all_number_pdf():
+    start = 1999
+    page_length = 500
     filename = "પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
     document_link = "https://pushtisanskar.frappe.cloud/files/પુષ્ટિસંસ્કારધામ શિલાન્યાસ મહોત્સવ ફેઝ-૨ આમંત્રણ.pdf"
-    caption = "પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ-જુનાગઢ.*"
-
 
     url = "https://api.ultramsg.com/instance67403/messages/document"
-    user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
+    user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "firstname", "mobile_no"], start=start, page_length=page_length)
     # return user_details
 
-    # exist_l = []
-    # new_list = []
+    exist_l = []
+    new_list = []
 
     for data in user_details:
 
@@ -63,7 +64,8 @@ def send_all_number_pdf():
             # new_list.append(data['mobile_no'])
 
     # return {"data": exist_l, "new": new_list}
-
+            caption = f"*જય શ્રી કૃષ્ણ {data['firstname'].split(' ')[0]}* \n પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ-જુનાગઢ.*"
+            
             payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&filename={filename}&document={document_link}&caption={caption}"
             payload = payload.encode('utf8').decode('iso-8859-1')
             headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -78,38 +80,39 @@ def send_all_number_pdf():
                 status = "Failed"
             set_whatsapp_log(response.text, status, data['mobile_no'], "Document", link=document_link, caption=caption)
 
-@frappe.whitelist()
-def send_all_number_video():
-    video_link = "https://pushtisanskar.frappe.cloud/files/Pushtisanskardham Invitation Video.mp4"
-    caption = "પુષ્ટિસંસ્કાર સ્કૂલના બાળકો દ્વારા પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ  સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ જુનાગઢ.* *Youtube :* https://youtu.be/Wada0NU6RPk"
+
+# @frappe.whitelist()
+# def send_all_number_video():
+#     video_link = "https://pushtisanskar.frappe.cloud/files/Pushtisanskardham Invitation Video.mp4"
+#     caption = "પુષ્ટિસંસ્કાર સ્કૂલના બાળકો દ્વારા પુષ્ટિસંસ્કારધામ સપ્તદિવસીય ફેઝ -2 શિલાન્યાસ મહોત્સવ તારીખ 14 થી 20 ડિસેમ્બર 2023 માં આપ સર્વેને ઉપસ્થિત રહેવા ભાવ ભર્યું આમંત્રણ. \n*સ્થાન :- પુષ્ટિસંસ્કારધામ નિર્માણ  સ્થાન, વડાલ-કાથરોટા રોડ, વડાલ જુનાગઢ.* *Youtube :* https://youtu.be/Wada0NU6RPk"
 
 
-    url = "https://api.ultramsg.com/instance67403/messages/video"
+#     url = "https://api.ultramsg.com/instance67403/messages/video"
 
-    user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
-    # return user_details
-    for data in user_details:
-        l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Video"}, fieldname=["name"])
-        if l:
-            print("pass")
-            # exist_l.append(data['mobile_no'])
+#     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], limit=40000)
+#     # return user_details
+#     for data in user_details:
+#         l = frappe.db.get_value("Whatsapp Message Log", filters={"number": data['mobile_no'], "type": "Video"}, fieldname=["name"])
+#         if l:
+#             print("pass")
+#             # exist_l.append(data['mobile_no'])
 
-        else:
-            payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&video={video_link}&caption={caption}"
+#         else:
+#             payload = f"token=0srgh10epscrt41b&to={data['mobile_no']}&video={video_link}&caption={caption}"
             
-            payload = payload.encode('utf8').decode('iso-8859-1')
-            headers = {'content-type': 'application/x-www-form-urlencoded'}
+#             payload = payload.encode('utf8').decode('iso-8859-1')
+#             headers = {'content-type': 'application/x-www-form-urlencoded'}
 
-            response = requests.request("POST", url, data=payload, headers=headers)
+#             response = requests.request("POST", url, data=payload, headers=headers)
 
-            print(response.text)
+#             print(response.text)
 
-            res = json.loads(response.text)
-            if "sent" in res and res["sent"]:
-                status = "Success"
-            else:
-                status = "Failed"
-            set_whatsapp_log(response.text, status, data['mobile_no'], "Video", link=video_link, caption=caption)
+#             res = json.loads(response.text)
+#             if "sent" in res and res["sent"]:
+#                 status = "Success"
+#             else:
+#                 status = "Failed"
+#             set_whatsapp_log(response.text, status, data['mobile_no'], "Video", link=video_link, caption=caption)
 
 
 
@@ -495,3 +498,27 @@ def check_number_second():
             doc.save(ignore_permissions=True)
             doc.sent = 1
             frappe.db.commit()
+
+
+
+# @frappe.whitelist()
+# def test():
+#     start=0,
+#     page_length=5,
+#     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], start=start, page_length=page_length)
+#     return user_details
+
+# @frappe.whitelist()
+# def test():
+#     start = 1500
+#     page_length = 1000
+#     user_details = frappe.db.get_list("Whatsapp Number Check", filters={"is_valid_whatsapp_no": 1}, fields=["name", "mobile_no"], start=start, page_length=page_length)
+#     return user_details
+
+
+@frappe.whitelist()
+def delete():
+    data = frappe.get_list("delete", fields=["name"], limit=30000)
+    for i in data:
+        frappe.delete_doc("Whatsapp Number Check", i["name"])
+        frappe.db.commit()
